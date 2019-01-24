@@ -1,5 +1,6 @@
 FROM jupyter/datascience-notebook
-MAINTAINER Wilder Rodrigues (wilder@ekholabs.com)
+
+MAINTAINER Wilder Rodrigues (wilder.rodrigues@ekholabs.ai)
 
 USER $NB_USER
 

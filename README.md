@@ -1,12 +1,12 @@
-# MLflow Service
+# Artificial Intelligence Engineering
 
 This repository contains a Proof of Concept on how to integrate Jupyter Notebooks
-with MLflow, for AI models versioning and serving, and SFTP / Minio for artefacts
+with MLflow, for AI models versioning and serving, and SFTP & Minio for artefacts
 storage.
 
 The PoC has been implemented in a way to mimic MLflow running as a remote tracking
-server, within a Docker container, and the SFTP or Minio also running remotely in
-another Docker container. To ease the way the Jupyter notebooks communicate with
+server, as a Docker container, and the SFTP and Minio also running as docker
+containers. To ease the way the Jupyter notebooks communicate with
 the MLflow tracking server, Jupyter Lab has also runs within a Docker container.
 
 All the three containers run with the assistance of Docker Compose, which also
@@ -39,7 +39,7 @@ The three containers used are named as:
    - based on the `minio/minio` image.
 2. `ekholabs-sftp`:
    - based on the `atmoz/sftp` image.
-3. `ekholabs-mlflow-server`:
+3. `ekholabs-mlflow`:
    - built from the `Dockerfile.mlflowserver`.
 4. `ekholabs-jupyterlab`:
    - built from the `Dockerfile.jupyterlab`.
@@ -127,23 +127,23 @@ To start with, we have to create the experiments in the MLflow server. But how t
 Easy: connect to the container and execute one command. Of course, once you are in
 the container.
 
-So, to start with, let's connect to the `ekholabs-mlflow-server`. To do that, run
+So, to start with, let's connect to the `ekholabs-mlflow`. To do that, run
 the command below:
 
-* ```docker exec -it ekholabs-mlflow-server /bin/bash```
+* ```docker exec -it ekholabs-mlflow /bin/bash```
 
 If you type `mlflow --help` you will see a list of possible `commands` and `options`.
 
 To create our experiments, which will use SFTP and Minio as storage server, just
-execute the ```create_artefacts.sh``` script.
+execute the ```create_experiments.sh``` script.
 
 I also advice you to have a look at the script to understand how the experiments are created.
 If you face issues when running the script, please make sure the containers and running
-and that the script is executable (`chmod +x create_artefacts.sh`).
+and that the script is executable (`chmod +x create_experiments.sh`).
 
 The script should be executed from the project root in the following way:
 
-* Run -> ```./create_artefacts.sh```
+* Run -> ```./scripts/create_experiments.sh```
 
 Now, if you go back to the MLflow frontend, you will see that two experiments have been created.
 
@@ -159,7 +159,7 @@ means that the private key has to be added to the other containers that will hav
 communicate with the SFTP server.
 
 Hence, looking further into the `docker-compose.yml` file, you will notice that both
-`ekholabs-mlflow-server` and `ekholabs-jupyterlab` have the `ssh_sftp_key` file mounted
+`ekholabs-mlflow` and `ekholabs-jupyterlab` have the `ssh_sftp_key` file mounted
 as a volume. Along with that file, which is the private key, we also have a SSH `config`
 file mounted as a volume.
 
@@ -186,14 +186,14 @@ What's the problem with that? Well, when the notebook tries to log the artefact 
 tracking server (MLflow), `pysftp/Paramiko` will complain and throw and exception saying:
 *No hosts for key!*
 
-So, it can only mean one thing: we have to get the `known_hosts` from the `ekholabs-mlflow-server`
+So, it can only mean one thing: we have to get the `known_hosts` from the `ekholabs-mlflow`
 container into the `ekholabs-jupyterlab` container. But how? Well, with **Docker**! I mean,
 with a shell script that will run some commands in the Docker containers.
 
 Take a peak inside the ```copy_known_hosts.sh``` shell script to understand what it's doing.
 Once you done, please execute that script from the root directory of the project.
 
-* Run --> ```./copy_known_hosts.sh```
+* Run --> ```./scripts/copy_known_hosts.sh```
 
 Now you are - almost - good to go!
 
@@ -208,10 +208,8 @@ I do something with S3 and have to say or write the word `bucket`, it reminds me
 So, if we want to use Minio as storage, we do need a bucket. And, more over, the bucket
 has to be created before we try to store artefacts.
 
-If you have looked inside the ```create_artefacts.sh```, you might have noticed that
+If you have looked inside the ```create_experiments.sh```, you might have noticed that
 we expect a bucket called ```ai-models```, not *Leonardo*, there.
-
-* Run --> ```./create_artefacts.sh```
 
 To create a bucket, just go to Minio (http://localhost:9000) and the rest you should know.
 
