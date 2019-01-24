@@ -1,0 +1,15 @@
+FROM jupyter/datascience-notebook
+MAINTAINER Wilder Rodrigues (wilder@ekholabs.com)
+
+USER $NB_USER
+
+RUN mkdir ~/.ssh
+
+# Install TensorFlow
+RUN conda install -c conda-forge tensorflow -y && \
+    conda install -c conda-forge numpy keras nltk gensim opencv -y
+
+# Install Keras Contrib
+RUN pip install npm jupyterlab mlflow pysftp git+https://www.github.com/keras-team/keras-contrib.git
+
+RUN jupyter serverextension enable --py jupyterlab

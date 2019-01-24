@@ -1,0 +1,5 @@
+Host ekholabs-sftp
+  HostName ekholabs-sftp
+  PasswordAuthentication no
+  IdentityFile ~/.ssh/keys/ssh_sftp_key
+  Port 22

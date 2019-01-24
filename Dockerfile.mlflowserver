@@ -1,0 +1,8 @@
+FROM python:3
+
+MAINTAINER Wilder Rodrigues (wilder@ekholabs.com)
+
+RUN pip install mlflow pysftp
+
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8

@@ -1,0 +1,85 @@
+version: '3'
+services:
+  ekholabs-minio:
+    image: minio/minio
+    networks:
+      - mlflow-net
+    container_name: ekholabs-minio
+    working_dir: "/ekholabs-minio/data"
+    volumes:
+      - ./data:/ekholabs-minio/data
+    expose:
+      - "9000"
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ACCESS_KEY: ekholabs-minio
+      MINIO_SECRET_KEY: ekholabs-minio-pass
+    command: server /ekholabs-minio/data
+  ekholabs-sftp:
+    image: atmoz/sftp
+    networks:
+      - mlflow-net
+    container_name: ekholabs-sftp
+    working_dir: "/home/ekho"
+    volumes:
+      - ./share:/home/ekho/share
+      - ./keys/ssh_sftp_key.pub:/home/ekho/.ssh/keys/ssh_sftp_key.pub:ro
+    expose:
+      - "22"
+    ports:
+      - "22:22"
+    command: ekho::1001 labs:pass:1002
+  ekholabs-mlflow-server:
+    image: "ekholabs/mlflow-server"
+    container_name: "ekholabs-mlflow-server"
+    networks:
+      - mlflow-net
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflowserver
+    depends_on:
+      - ekholabs-sftp
+    working_dir: "/ekholabs-models"
+    volumes:
+      - ./ekholabs-models:/ekholabs-models
+      - ./keys/ssh_sftp_key:/root/.ssh/keys/ssh_sftp_key:ro
+      - ./keys/config:/root/.ssh/config:ro
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://ekholabs-minio:9000
+      AWS_ACCESS_KEY_ID: ekholabs-minio
+      AWS_SECRET_ACCESS_KEY: ekholabs-minio-pass
+    expose:
+      - "5500"
+    ports:
+      - "5500:5500"
+    command: >
+      bash -c "sleep 3
+      && ssh-keyscan -H ekholabs-sftp >> ~/.ssh/known_hosts
+      && mlflow server --host 0.0.0.0 --port 5500 --file-store /ekholabs-models/mlruns"
+  ekholabs-jupyterlab:
+    image: "ekholabs/jupyterlab"
+    container_name: "ekholabs-jupyterlab"
+    networks:
+      - mlflow-net
+    build:
+      context: .
+      dockerfile: Dockerfile.jupyterlab
+    depends_on:
+      - ekholabs-sftp
+    working_dir: "/notebooks"
+    volumes:
+      - ./notebooks:/notebooks
+      - ./keys/ssh_sftp_key:/home/jovyan/.ssh/keys/ssh_sftp_key:ro
+      - ./keys/config:/home/jovyan/.ssh/config:ro
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://ekholabs-minio:9000
+      AWS_ACCESS_KEY_ID: ekholabs-minio
+      AWS_SECRET_ACCESS_KEY: ekholabs-minio-pass
+    expose:
+      - "8888"
+    ports:
+      - "8888:8888"
+
+networks:
+  mlflow-net:

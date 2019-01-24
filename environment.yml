@@ -1,0 +1,20 @@
+name: MLflow-Service
+dependencies:
+  - python=3.6
+  - pandas
+  - numpy
+  - keras
+  - scipy
+  - nltk
+  - gensim
+  - opencv
+  - tensorflow
+  - pip:
+     - sklearn
+     - matplotlib
+     - jupyterlab
+     - git+https://www.github.com/keras-team/keras-contrib.git
+     - pydub
+     - gym
+     - mlflow
+     - pysftp
