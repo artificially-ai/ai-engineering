@@ -82,7 +82,7 @@ even better! ;)
    server, it depends on which experiment id is being used. The files are
    identified by the run id from MLflow;
 4. The user can browse the experiments on MLflow via its UI.
-5. The bickets kept on Minio are accessible via its UI.
+5. The buckets kept on Minio are accessible via its UI.
 
 For the purpose of this PoC, the containers run on a local machine, MacBook Pro.
 However, for a robust and resilient experience, it is recommended that both MLflow
