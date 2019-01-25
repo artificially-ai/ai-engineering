@@ -21,15 +21,33 @@ To get this PoC running on a MacBook Pro, one needs to install the following app
 If you are not a fan of Docker and would like to have only JupyterLab and MLflow
 running locally, you will need the following:
 
-* [Anaconda](https://docs.anaconda.com/anaconda/install/mac-os/)
+## Step-by-step Setup
 
-After Anaconda is installed, you can create an environment based on the `environment.yml`
-file that is part of this repository. You can find more information about managing
-Anaconda environments [here](https://conda.io/projects/continuumio-conda/en/latest/user-guide/getting-started.html#managing-environments).
+Although you are encouraged to read all the sections below in order to understand
+better the whole setup, let's save some time and have a more concise step-by-step setup.
 
-**Remark**: this repository will focus on running the dockerised version of the
-proposed solution. If you are not a Docker fan, I suggest you start being otherwise
-life will become difficult for you.
+1. Run the Docker containers:
+- ```docker-compose up```
+- The first run will take some time because it will have to pull some images and build other.
+2. Once the containers are running, open another `terminal` tab and make the```copy_known_hosts.sh```
+  and the ```create_experiments.sh``` executables:
+- ```chmod +x copy_known_hosts.sh```
+- ```chmod +x create_experiments.sh```
+3. Now copy the `known_hosts` to the JupytLab container:
+- ```./copy_known_hosts.sh```
+4. Create the experiments in the MLflow container:
+- ```./create_experiments.sh```
+5. Create a bucket on Minio:
+- Go the the Minio UI on `http://localhost:9000`
+- Click on the + sign on the bottom-right corner
+- Create a bucket called `ai-models`
+6. Open JupyterLab:
+- Got to your browser and type `http://localhost:8991/lab`
+- Open the `conv-net-in-keras.ipynb` notebook and run all the cells
+- Go to MLflow UI on `http://localhost:5500` and check the experiments
+- Go to Minio UI and check the content of the bucket
+
+**If you want to understand why those steps were made, please keep reading.**
 
 ## Containers
 
@@ -110,7 +128,7 @@ the logs of the services, in case you have errors happening during startup.
 After starting the containers, you can access both JupyterLab, MLflow and Minio
 in the following way:
 
-1. JupyterLab: http://localhost:8888/lab
+1. JupyterLab: http://localhost:8991/lab
   - Copy the token printed out on the terminal to be able to access JupyterLab
 2. MLflow: http://localhost:5500
 3. Minio: http://localhost:9000

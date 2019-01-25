@@ -77,7 +77,7 @@ services:
     expose:
       - "8888"
     ports:
-      - "8888:8888"
+      - "8991:8888"
 
 networks:
   mlflow-net:
